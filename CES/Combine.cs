@@ -188,9 +188,14 @@ namespace CES
                 $"ErrorCode : <{CES.ErrorCode.Code.FirstOrDefault(x => x.Key == ErrorCode)}>";
         }
     }
-
+    /// <summary>
+    /// 错误码
+    /// </summary>
     public static class ErrorCode
     {
+        /// <summary>
+        /// 错误码字典
+        /// </summary>
         public static Dictionary<int, string> Code { get; } = new()
         {
             // ProcessCombination.AddComponent

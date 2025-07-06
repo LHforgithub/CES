@@ -8,151 +8,404 @@ using System.Threading.Tasks;
 
 namespace CES
 {
-    // 触发器基类，实现了ICESTrigger和ICESTargetable接口
+    /// <summary>
+    /// 触发器基类，实现了ICESTrigger和ICESTargetable接口
+    /// </summary>
     public abstract class TriggerBase : ICESTrigger, ICESTargetable
     {
-        // 所属的SingleEffect对象
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
-        // 使用的数值参数列表
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
-        // 是否使用数值参数
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
-        // 使用的数值参数数量
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
-        // 组件自身索引
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 提供的参数类型列表
+        /// <summary>
+        /// 提供的参数类型列表
+        /// </summary>
         public virtual List<Type> ProvideParamTypes => [];
-        // 提供的参数实例列表
+        /// <summary>
+        /// 提供的参数实例列表
+        /// </summary>
         public List<ICESParamable> ProvideParams { get; } = [];
-        // 描述处理器
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
         public abstract IDescribeProcessor DescribeProcessor { get; }
-        // 修改描述文本
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 触发时调用
+        /// <summary>
+        /// 触发时调用
+        /// </summary>
         public abstract void OnTrigger();
-        // 初始化
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
-        // 销毁
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
-        // 用于排序
+        /// <summary>
+        /// 用于排序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }   
     }
-    // 自由参数基类，泛型T为参数类型，实现ICESFreeParam接口
+    /// <summary>
+    /// 自由参数基类，泛型T为参数类型，实现ICESFreeParam接口
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class FreeParamBase<T> : ICESFreeParam where T : ICESParamable
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 提供的参数类型
+        /// <summary>
+        /// 提供的参数类型
+        /// </summary>
         public Type ProvideParamType => typeof(T);
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
         public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 获取参数实例
+        /// <summary>
+        /// 获取参数实例，自动调用
+        /// </summary>
+        /// <returns>从已知信息中获取的参数实例</returns>
         public ICESParamable TryGetParam() => GetParam();
+        /// <summary>
+        /// 获取参数实例
+        /// </summary>
+        /// <returns>从已知信息中获取的参数实例</returns>
         public abstract T GetParam();
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
-    // 参数处理器基类，T为输入参数类型，U为输出参数类型，实现ICESParamProcessor接口
+    /// <summary>
+    /// 参数处理器基类，T为输入参数类型，U为输出参数类型，实现ICESParamProcessor接口
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="U"></typeparam>
     public abstract class ParamProcessorBase<T, U> : ICESParamProcessor where T : ICESParamable where U : ICESParamable
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 需要的参数类型
+        /// <summary>
+        /// 需要的参数类型
+        /// </summary>
         public virtual Type RequireParamType => typeof(T);
-        // 需要的参数索引
+        /// <summary>
+        /// 需要的参数索引
+        /// </summary>
         public int RequireParamIndex { get; set; }
-        // 提供的参数类型
+        /// <summary>
+        /// 提供的参数类型
+        /// </summary>
         public virtual Type ProvideParamType => typeof(U);
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
         public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 处理参数
+        /// <summary>
+        /// 处理参数，自动调用
+        /// </summary>
+        /// <param name="param">要处理的参数</param>
+        /// <returns>处理后的参数</returns>
         public ICESParamable Process(ICESParamable param) => ProcessParam((T)param);
+        /// <summary>
+        /// 处理参数，将输入参数返回为新的输出参数
+        /// </summary>
+        /// <param name="param">要处理的参数</param>
+        /// <returns>处理后的参数</returns>
         public abstract U ProcessParam(T param);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
-    // 条件基类，实现ICESCondition和ICESTargetable接口
+    /// <summary>
+    /// 条件基类，实现ICESCondition和ICESTargetable接口
+    /// </summary>
     public abstract class ConditionBase : ICESCondition, ICESTargetable
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 影响的组件索引
+        /// <summary>
+        /// 影响的组件索引
+        /// </summary>
         public int AffectComponentIndex { get; set; }
-        // 需要的参数类型列表
+        /// <summary>
+        /// 需要的参数类型列表
+        /// </summary>
         public virtual List<Type> RequireParamTypes { get; } = [];
-        // 需要的参数索引列表
+        /// <summary>
+        /// 需要的参数索引列表
+        /// </summary>
         public List<int> RequireParamIndexes { get; } = [];
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
         public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 检查条件是否成立
+        /// <summary>
+        /// 检查条件是否成立
+        /// </summary>
+        /// <param name="param">检查条件所需参数列表</param>
+        /// <returns><see langword="true"/>如果满足条件</returns>
         public abstract Task<bool> Check(List<ICESParamable> param);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
-    // 目标搜索基类，T为目标类型，实现ICESTargetSearch和ICESTargetable接口
+    /// <summary>
+    /// 目标搜索基类，T为目标类型，实现ICESTargetSearch和ICESTargetable接口
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class TargetSearchBase<T> : ICESTargetSearch, ICESTargetable where T : ICESTargetable
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 提供的目标类型
+        /// <summary>
+        /// 提供的目标类型
+        /// </summary>
         public virtual Type ProvideTargetType => typeof(T);
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
         public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 获取所有目标
+        /// <summary>
+        /// 获取所有目标，自动调用
+        /// </summary>
+        /// <returns></returns>
         public List<ICESTargetable> GetAll() => [.. GetAllTarget().OfType<ICESTargetable>()];
-        // 搜索目标
+        /// <summary>
+        /// 搜索目标，自动调用
+        /// </summary>
+        /// <param name="filterTarget"></param>
+        /// <returns></returns>
         public async Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget) => [.. (await SelectTarget([.. filterTarget.OfType<T>()])).OfType<ICESTargetable>()];
     
-        // 获取所有目标（泛型）
+        /// <summary>
+        /// 获取所有目标（泛型）
+        /// </summary>
+        /// <returns></returns>
         public abstract List<T> GetAllTarget();
-        // 选择目标
+        /// <summary>
+        /// 选择目标
+        /// </summary>
+        /// <param name="filterTarget"></param>
+        /// <returns></returns>
         public abstract Task<List<T>> SelectTarget(List<T> filterTarget);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
-    // 活动基类，实现ICESActivity接口
+    /// <summary>
+    /// 活动基类，实现ICESActivity接口
+    /// </summary>
     public abstract class ActivityBase : ICESActivity
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        // 描述处理器（活动默认无）
+        /// <summary>
+        /// 描述处理器（活动默认无）
+        /// </summary>
         public IDescribeProcessor DescribeProcessor => null;
-        // 修改描述文本
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public virtual string ChangeDescription(string originalDesc)
         {
             return "";
@@ -207,7 +460,10 @@ namespace CES
             }
             return await searchFunc.Search(result);
         }
-        // 活动执行主流程
+        /// <summary>
+        /// 活动执行主流程
+        /// </summary>
+        /// <returns></returns>
         public async Task Action()
         {
             if (Owner == null || Owner.Activity != this)
@@ -276,39 +532,107 @@ namespace CES
                 await EffectAction(dic);
             }
         }
-        // 检查条件
+        /// <summary>
+        /// 按所需方式检查条件
+        /// </summary>
+        /// <param name="triggerConditions">所有要检查的条件</param>
+        /// <returns><see langword="true"/>如果满足条件</returns>
         public abstract Task<bool> ConditionCheck(Dictionary<ICESCondition, List<ICESParamable>> triggerConditions);
-        // 执行效果
+        /// <summary>
+        /// 执行效果
+        /// </summary>
+        /// <param name="effectActionDic">所有可执行的效果</param>
+        /// <returns></returns>
         public abstract Task EffectAction(Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>> effectActionDic);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
-    // 效果基类，实现ICESEffect和ICESTargetable接口
+    /// <summary>
+    /// 效果基类，实现ICESEffect和ICESTargetable接口
+    /// </summary>
     public abstract class EffectBase : ICESEffect, ICESTargetable
     {
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
         public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
         public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
         public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
         public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
         public int SelfIndex { get; set; } = 0;
-        public abstract IDescribeProcessor DescribeProcessor { get; }
-        // 需要的参数类型列表
+        /// <summary>
+        /// 需要的参数类型列表
+        /// </summary>
         public virtual List<Type> RequireParamTypes => [];
-        // 需要的参数索引列表
+        /// <summary>
+        /// 需要的参数在持有者中的索引索引列表
+        /// </summary>
         public List<int> RequireParamIndexes { get; } = [];
-        // 需要的目标类型列表
+        /// <summary>
+        /// 需要的目标类型列表
+        /// </summary>
         public virtual List<Type> RequireTargetTypes => [];
-        // 需要的目标索引列表
+        /// <summary>
+        /// 需要的目标索引列表
+        /// </summary>
         public List<int> RequireTargetIndexes { get; } = [];
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
+        public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
         public abstract string ChangeDescription(string originalDesc);
-        // 效果执行方法
+        /// <summary>
+        /// 效果执行方法
+        /// </summary>
+        /// <param name="params">按<see cref="RequireParamTypes"/>中的顺序填入的参数实例</param>
+        /// <param name="targets">按<see cref="RequireTargetTypes"/>中的顺序填入的对象（列表）实例</param>
+        /// <returns></returns>
         public abstract Task<int> Effect(List<ICESParamable> @params, List<ICESTargetable>[] targets);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
         public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
         public abstract void Destroy();
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public int CompareTo(ICESComponent other)
         {
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);

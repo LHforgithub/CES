@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CES
 {
+    /// <summary>
+    /// CES组件描述处理器接口
+    /// </summary>
     public interface IDescribeProcessor
     {
         /// <summary>
@@ -50,6 +53,9 @@ namespace CES
         /// <returns></returns>
         public string ChangeDescription(ICESComponent component, string originalDesc);
     }
+    /// <summary>
+    /// CES SingleEffect总描述组合处理接口
+    /// </summary>
     public interface IDescriptionCombiner
     {
         /// <summary>
