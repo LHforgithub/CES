@@ -42,11 +42,11 @@ namespace CES
                     return default;
             }
         }
-        public virtual void Triggered()
+        public virtual async Task Triggered()
         {
             if (Activity != null)
             {
-                Activity.Action();
+                await Activity.Action();
             }
         }
         public virtual void Init()

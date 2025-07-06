@@ -106,7 +106,7 @@ namespace CES
         public abstract IDescribeProcessor DescribeProcessor { get; }
         public abstract string ChangeDescription(string originalDesc);
         // 检查条件是否成立
-        public abstract bool Check(List<ICESParamable> param);
+        public abstract Task<bool> Check(List<ICESParamable> param);
         public abstract void Init();
         public abstract void Destroy();
         public int CompareTo(ICESComponent other)
@@ -129,11 +129,12 @@ namespace CES
         // 获取所有目标
         public List<ICESTargetable> GetAll() => [.. GetAllTarget().OfType<ICESTargetable>()];
         // 搜索目标
-        public List<ICESTargetable> Search(List<ICESTargetable> filterTarget) => [.. SelectTarget([.. filterTarget.OfType<T>()]).OfType<ICESTargetable>()];
+        public async Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget) => [.. (await SelectTarget([.. filterTarget.OfType<T>()])).OfType<ICESTargetable>()];
+    
         // 获取所有目标（泛型）
         public abstract List<T> GetAllTarget();
         // 选择目标
-        public abstract List<T> SelectTarget(List<T> filterTarget);
+        public abstract Task<List<T>> SelectTarget(List<T> filterTarget);
         public abstract void Init();
         public abstract void Destroy();
         public int CompareTo(ICESComponent other)
@@ -193,28 +194,28 @@ namespace CES
             return result;
         }
         // 检查目标条件并获取目标
-        private List<ICESTargetable> TargetConditionCheckGet(ICESTargetSearch searchFunc)
+        private async Task<List<ICESTargetable>> TargetConditionCheckGet(ICESTargetSearch searchFunc)
         {
             var allTargets = searchFunc.GetAll();
             var result = new List<ICESTargetable>();
             foreach (var target in allTargets)
             {
-                if (ConditionCheck(ConditionParamsSearch(searchFunc.SelfIndex, [target])))
+                if (await ConditionCheck(ConditionParamsSearch(searchFunc.SelfIndex, [target])))
                 {
                     result.Add(target);
                 }
             }
-            return searchFunc.Search(result);
+            return await searchFunc.Search(result);
         }
         // 活动执行主流程
-        public void Action()
+        public async Task Action()
         {
             if (Owner == null || Owner.Activity != this)
             {
                 LogTool.Instance.Log($"Invalid Activity. Owner info error.");
                 return;
             }
-            if (ConditionCheck(ConditionParamsSearch(Owner.Trigger.SelfIndex)))
+            if (await ConditionCheck(ConditionParamsSearch(Owner.Trigger.SelfIndex)))
             {
                 var dic = new Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>>();
                 for (int i = 0; i < Owner.Effects.Count; i++)
@@ -257,7 +258,7 @@ namespace CES
                             var target = Owner.SearchParamComponentByIndex(index);
                             if (target is ICESTargetSearch tar)
                             {
-                                effectTargets[j] = TargetConditionCheckGet(tar);
+                                effectTargets[j] = await TargetConditionCheckGet(tar);
                             }
                             else
                             {
@@ -272,13 +273,13 @@ namespace CES
                         dic.Add(effect, new KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>(effectParams, effectTargets));
                     }
                 }
-                EffectAction(dic);
+                await EffectAction(dic);
             }
         }
         // 检查条件
-        public abstract bool ConditionCheck(Dictionary<ICESCondition, List<ICESParamable>> triggerConditions);
+        public abstract Task<bool> ConditionCheck(Dictionary<ICESCondition, List<ICESParamable>> triggerConditions);
         // 执行效果
-        public abstract void EffectAction(Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>> effectActionDic);
+        public abstract Task EffectAction(Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>> effectActionDic);
         public abstract void Init();
         public abstract void Destroy();
         public int CompareTo(ICESComponent other)
@@ -305,7 +306,7 @@ namespace CES
         public List<int> RequireTargetIndexes { get; } = [];
         public abstract string ChangeDescription(string originalDesc);
         // 效果执行方法
-        public abstract int Effect(List<ICESParamable> @params, List<ICESTargetable>[] targets);
+        public abstract Task<int> Effect(List<ICESParamable> @params, List<ICESTargetable>[] targets);
         public abstract void Init();
         public abstract void Destroy();
         public int CompareTo(ICESComponent other)

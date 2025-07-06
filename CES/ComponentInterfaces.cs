@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CES
 {
@@ -44,17 +45,17 @@ namespace CES
         public List<Type> RequireParamTypes { get; }
         public List<int> RequireParamIndexes { get; }
         public int AffectComponentIndex { get; set; }
-        public bool Check(List<ICESParamable> param);
+        public Task<bool> Check(List<ICESParamable> param);
     }
     public interface ICESTargetSearch : ICESTargetComponent
     {
         public Type ProvideTargetType { get; }
         public List<ICESTargetable> GetAll();
-        public List<ICESTargetable> Search(List<ICESTargetable> filterTarget);
+        public Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget);
     }
     public interface ICESActivity : ICESComponent
     {
-        public void Action();
+        public Task Action();
     }
     public interface ICESEffect : ICESComponent
     {
@@ -62,7 +63,7 @@ namespace CES
         public List<int> RequireParamIndexes { get; }
         public List<Type> RequireTargetTypes { get; }
         public List<int> RequireTargetIndexes { get; }
-        public int Effect(List<ICESParamable> @params, List<ICESTargetable>[] targets);
+        public Task<int> Effect(List<ICESParamable> @params, List<ICESTargetable>[] targets);
     }
     public interface ICESParamable
     {

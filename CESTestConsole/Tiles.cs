@@ -8,13 +8,13 @@ namespace CESTestConsole
 {
     public class TestActivity : ActivityBase
     {
-        public override bool ConditionCheck(Dictionary<ICESCondition, List<ICESParamable>> triggerConditions)
+        public override async Task<bool> ConditionCheck(Dictionary<ICESCondition, List<ICESParamable>> triggerConditions)
         {
             try
             {
                 foreach (var item in triggerConditions)
                 {
-                    if (!item.Key.Check(item.Value))
+                    if (!await item.Key.Check(item.Value))
                     {
                         return false;
                     }
@@ -33,13 +33,13 @@ namespace CESTestConsole
 
         }
 
-        public override void EffectAction(Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>> effectActionDic)
+        public override async Task EffectAction(Dictionary<ICESEffect, KeyValuePair<List<ICESParamable>, List<ICESTargetable>[]>> effectActionDic)
         {
             try
             {
                 foreach (var item in effectActionDic)
                 {
-                    item.Key.Effect(item.Value.Key, item.Value.Value);
+                    await item.Key.Effect(item.Value.Key, item.Value.Value);
                 }
             }
             catch (Exception ex)
@@ -171,7 +171,7 @@ namespace CESTestConsole
             Console.WriteLine("GetAllTarget");
             return new List<TestTarget_1>() { new TestTarget_1() };
         }
-        public override List<TestTarget_1> SelectTarget(List<TestTarget_1> filterTarget)
+        public override async Task<List<TestTarget_1>> SelectTarget(List<TestTarget_1> filterTarget)
         {
             Console.WriteLine("SelectTarget");
             filterTarget.ForEach(x => x.Value += "1");
@@ -186,7 +186,7 @@ namespace CESTestConsole
         {
             return originalDesc;
         }
-        public override bool Check(List<ICESParamable> param)
+        public override async Task<bool> Check(List<ICESParamable> param)
         {
             Console.WriteLine("Condition");
             return (param[0] as TestParam_1).Condition;
@@ -206,7 +206,7 @@ namespace CESTestConsole
         {
             return originalDesc;
         }
-        public override bool Check(List<ICESParamable> param)
+        public override async Task<bool> Check(List<ICESParamable> param)
         {
             Console.WriteLine("Condition");
             Console.WriteLine((param[^1] as TestTarget_1).Value);
@@ -228,7 +228,7 @@ namespace CESTestConsole
         {
             return originalDesc;
         }
-        public override int Effect(List<ICESParamable> param, List<ICESTargetable>[] target)
+        public override async Task<int> Effect(List<ICESParamable> param, List<ICESTargetable>[] target)
         {
             Console.WriteLine("Effect");
             foreach (var item in param)
