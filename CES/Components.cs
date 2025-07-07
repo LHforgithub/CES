@@ -341,7 +341,7 @@ namespace CES
         /// </summary>
         /// <param name="filterTarget"></param>
         /// <returns></returns>
-        public async Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget) => [.. (await SelectTarget([.. filterTarget.OfType<T>()])).OfType<ICESTargetable>()];
+        public async Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget) => [.. (await SelectTarget([.. filterTarget.OfType<T>()]))];
     
         /// <summary>
         /// 获取所有目标（泛型）
@@ -372,6 +372,87 @@ namespace CES
             return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
         }
     }
+    /// <summary>
+    /// 将参数类型转换为目标类型的基类
+    /// </summary>
+    /// <typeparam name="T">要转换的参数类型</typeparam>
+    /// <typeparam name="U">要转换的目标类型</typeparam>
+    public abstract class ParamTargetsConvertorBase<T, U> : ICESParamTargetConvertor where T : ICESParamable where U : ICESTargetable
+    {
+
+        /// <summary>
+        /// 所属的SingleEffect对象
+        /// </summary>
+        public SingleEffect Owner { get; set; }
+        /// <summary>
+        /// 使用的数值参数列表
+        /// </summary>
+        public virtual List<float> UsingNumber => [];
+        /// <summary>
+        /// 是否使用数值参数
+        /// </summary>
+        public virtual bool IsUsingNumber { get; }
+        /// <summary>
+        /// 使用的数值参数数量
+        /// </summary>
+        public virtual int UsingNumberCount { get; }
+        /// <summary>
+        /// 组件自身索引
+        /// </summary>
+        public int SelfIndex { get; set; } = 0;
+        /// <summary>
+        /// 需要的参数类型
+        /// </summary>
+        public Type RequireParamType => typeof(T);
+        /// <summary>
+        /// 需要的参数索引
+        /// </summary>
+        public int RequireParamIndex { get; set; }
+        /// <summary>
+        /// 提供的目标类型
+        /// </summary>
+        public Type ProvideTargetType => typeof(U);
+        /// <summary>
+        /// 描述处理器
+        /// </summary>
+        public abstract IDescribeProcessor DescribeProcessor { get; }
+        /// <summary>
+        /// 修改描述文本
+        /// </summary>
+        /// <param name="originalDesc"></param>
+        /// <returns></returns>
+        public abstract string ChangeDescription(string originalDesc);
+        /// <summary>
+        /// 初始化，持有者效果初始化时自动调用
+        /// </summary>
+        public abstract void Init();
+        /// <summary>
+        /// 销毁，持有者效果销毁时自动调用
+        /// </summary>
+        public abstract void Destroy();
+        /// <summary>
+        /// 将参数类型改为目标类型，自动调用
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<List<ICESTargetable>> ParamToTargets(ICESParamable param) => [.. await ChangeParamToTargets((T)param)];
+        /// <summary>
+        /// 将参数类型转为目标类型
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public abstract Task<List<U>> ChangeParamToTargets(T param);
+        /// <summary>
+        /// 自动比较顺序
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public int CompareTo(ICESComponent other)
+        {
+            return SelfIndex.CompareTo(other?.SelfIndex ?? 0);
+        }
+    }
+
     /// <summary>
     /// 活动基类，实现ICESActivity接口
     /// </summary>
@@ -498,11 +579,6 @@ namespace CES
                             }
                             effectParams.InsertOrUpdateAt(j, Owner.GetFinalParam(param, index));
                         }
-                        if (effectParams.Count != effect.RequireParamTypes.Count)
-                        {
-                            LogTool.Instance.Log($"Invalid Activity. Effect's parameters count error. Need param num: {effect.RequireParamTypes.Count}, recent count: {effectParams.Count}.");
-                            continue;
-                        }
                         var effectTargets = new List<ICESTargetable>[effect.RequireTargetTypes.Count];
                         for (int j = 0; j < effect.RequireTargetTypes.Count; j++)
                         {
@@ -516,10 +592,20 @@ namespace CES
                             {
                                 effectTargets[j] = await TargetConditionCheckGet(tar);
                             }
+                            else if (target is ICESParamTargetConvertor convertor)
+                            {
+                                var param = Owner.SearchParamComponentByIndex(convertor.RequireParamIndex);
+                                effectTargets[j] = await convertor.ParamToTargets(Owner.GetFinalParam(param));
+                            }
                             else
                             {
                                 break;
                             }
+                        }
+                        if (effectParams.Count != effect.RequireParamTypes.Count)
+                        {
+                            LogTool.Instance.Log($"Invalid Activity. Effect's parameters count error. Need param num: {effect.RequireParamTypes.Count}, recent count: {effectParams.Count}.");
+                            continue;
                         }
                         if (effectTargets.Count() != effect.RequireTargetTypes.Count)
                         {

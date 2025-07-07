@@ -35,6 +35,10 @@ namespace CES
         /// 目标搜索组件列表。
         /// </summary>
         public List<ICESTargetSearch> TargetSearches { get; } = [];
+        /// <summary>
+        /// 参数转目标组件列表
+        /// </summary>
+        public List<ICESParamTargetConvertor> ParamTargetConvertors { get; } = [];
 
         /// <summary>
         /// 条件组件列表。
@@ -54,7 +58,7 @@ namespace CES
         /// <summary>
         /// 所有组件的集合，便于统一遍历和查找。
         /// </summary>
-        public List<ICESComponent> AllComponents => [Trigger, .. FreeParams, .. ParamProcessors, .. TargetSearches, .. Conditions, .. Effects, Activity];
+        public List<ICESComponent> AllComponents => [Trigger, .. FreeParams, .. ParamProcessors, .. TargetSearches, .. ParamTargetConvertors, .. Conditions, .. Effects, Activity];
 
         /// <summary>
         /// 效果的拥有者。
@@ -62,7 +66,7 @@ namespace CES
         public virtual ICESAbilityable Owner { get; set; }
 
         /// <summary>
-        /// 描述合成函数。
+        /// 描述合成方法类型。
         /// </summary>
         public virtual IDescriptionCombiner DesciptionCombineFunction { get; set; } = null;
 
@@ -135,6 +139,10 @@ namespace CES
             {
                 targetSearch?.Init();
             }
+            foreach (var paramToTarget in new List<ICESParamTargetConvertor>(ParamTargetConvertors))
+            {
+                paramToTarget?.Init();
+            }
             Activity?.Init();
             foreach (var effect in new List<ICESEffect>(Effects))
             {
@@ -164,6 +172,10 @@ namespace CES
             {
                 targetSearch?.Destroy();
             }
+            foreach (var paramToTarget in new List<ICESParamTargetConvertor>(ParamTargetConvertors))
+            {
+                paramToTarget?.Destroy();
+            }
             Activity?.Destroy();
             foreach (var effect in new List<ICESEffect>(Effects))
             {
@@ -174,6 +186,7 @@ namespace CES
             ParamProcessors.Clear();
             Conditions.Clear();
             TargetSearches.Clear();
+            ParamTargetConvertors.Clear();
             Activity = null;
             Effects.Clear();
         }
@@ -189,6 +202,7 @@ namespace CES
                 $"FreeParamsCount : <{FreeParams.Count}>\n" +
                 $"ParamProcessorsCount : <{ParamProcessors.Count}>\n" +
                 $"TargetSearchesCount : <{TargetSearches.Count}>\n" +
+                $"ParamTargetConvertorsCount : {ParamTargetConvertors.Count}\n" +
                 $"ConditionsCount : <{Conditions.Count}>\n" +
                 $"EffectsCount : <{Effects.Count}>\n" +
                 $"Activity : <{Activity}>";

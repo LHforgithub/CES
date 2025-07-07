@@ -130,6 +130,29 @@ namespace CESTestConsole
             return new TestParam_2();
         }
     }
+
+    public class TestFreeParam_3 : FreeParamBase<TestTarget_1>
+    {
+        public override IDescribeProcessor DescribeProcessor => throw new NotImplementedException();
+
+        public override string ChangeDescription(string originalDesc)
+        {
+            return originalDesc;
+        }
+
+        public override void Destroy()
+        {
+        }
+
+        public override TestTarget_1 GetParam()
+        {
+            return new TestTarget_1();
+        }
+
+        public override void Init()
+        {
+        }
+    }
     public class TestParamProcessor : ParamProcessorBase<TestParam_1, TestParam_1>
     {
         public override IDescribeProcessor DescribeProcessor => throw new NotImplementedException();
@@ -150,7 +173,28 @@ namespace CESTestConsole
             return new TestParam_1() { Condition = new TestParam_2().Condition };
         }
     }
+    public class TestParamToTarget : ParamTargetsConvertorBase<TestTarget_1, TestTarget_1>
+    {
+        public override IDescribeProcessor DescribeProcessor => throw new NotImplementedException();
 
+        public override string ChangeDescription(string originalDesc)
+        {
+            return originalDesc;
+        }
+
+        public override async Task<List<TestTarget_1>> ChangeParamToTargets(TestTarget_1 param)
+        {
+             return [param];
+        }
+
+        public override void Destroy()
+        {
+        }
+
+        public override void Init()
+        {
+        }
+    }
 
     public class TestTargetSearch : TargetSearchBase<TestTarget_1>
     {

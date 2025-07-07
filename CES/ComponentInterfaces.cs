@@ -54,6 +54,13 @@ namespace CES
         public List<ICESTargetable> GetAll();
         public Task<List<ICESTargetable>> Search(List<ICESTargetable> filterTarget);
     }
+    public interface ICESParamTargetConvertor : ICESTargetComponent
+    {
+        public Type RequireParamType { get; }
+        public int RequireParamIndex { get; set; }
+        public Type ProvideTargetType { get; }
+        public Task<List<ICESTargetable>> ParamToTargets(ICESParamable param);
+    }
     public interface ICESActivity : ICESComponent
     {
         public Task Action();

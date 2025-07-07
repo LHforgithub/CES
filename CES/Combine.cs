@@ -122,7 +122,8 @@ namespace CES
             {
                 return true;
             }
-            if (SourceComponent is not ICESParamProcessor && SourceComponent is not ICESCondition && SourceComponent is not ICESEffect)
+            if (SourceComponent is not ICESParamProcessor && SourceComponent is not ICESCondition && SourceComponent is not ICESEffect
+                && SourceComponent is not ICESParamTargetConvertor)
             {
                 return true;
             }
@@ -181,9 +182,9 @@ namespace CES
             return $"Source : <{SourceComponent}>,\n" +
                 $"Reference : <{ReferenceComponent}>,\n" +
                 $"MergeCount : <{SameSourceReferences?.Count}>,\n" +
-                $"IsParam : <{IsParam}>,\n" +
-                $"IsTarget: <{IsTarget}>,\n" +
-                $"IsAffectTarget: {IsAffectTarget},\n" +
+                $"IsAsParam : <{IsParam}>,\n" +
+                $"IsAsTarget: <{IsTarget}>,\n" +
+                $"IsAsAffectTarget: {IsAffectTarget},\n" +
                 $"ParamIndex : <{TriggerParamIndex}>,\n" +
                 $"ErrorCode : <{CES.ErrorCode.Code.FirstOrDefault(x => x.Key == ErrorCode)}>";
         }
@@ -200,18 +201,22 @@ namespace CES
         {
             // ProcessCombination.AddComponent
             { -1, "ProcessCombination.AddComponent: 输入的组件无效" },
-            { 2, "ProcessCombination.AddComponent: 输入的自由参数类型已经存在" },
-            { 3, "ProcessCombination.AddComponent: 输入的参数处理器类型已经存在" },
-            { 4, "ProcessCombination.AddComponent: 输入的条件类型已经存在" },
-            { 5, "ProcessCombination.AddComponent: 输入的目标搜索器类型已经存在" },
-            { 6, "ProcessCombination.AddComponent: 输入的效果类型已经存在" },
-            { 7, "ProcessCombination.RemoveComponent: 输入的组件类型是触发器，但不是该实例当前触发器" },
-            { 8, "ProcessCombination.RemoveComponent: 输入的组件类型是自由参数，但不是该实例当前持有的参数" },
-            { 9, "ProcessCombination.RemoveComponent: 输入的组件类型是参数处理器，但不是该实例当前持有的处理器" },
-            { 10, "ProcessCombination.RemoveComponent: 输入的组件类型是条件，但不是该实例当前持有的条件" },
-            { 11, "ProcessCombination.RemoveComponent: 输入的组件类型是目标搜索器，但不是该实例当前持有的搜索器" },
-            { 12, "ProcessCombination.RemoveComponent: 输入的组件类型是效果，但不是该实例当前持有的效果" },
-            { 13, "ProcessCombination.RemoveComponent: 输入的组件类型是活动，但不是该实例当前持有的活动" },
+            { 2, "ProcessCombination.AddComponent: 输入的自由参数类型对应实例已经包含在处理中" },
+            { 3, "ProcessCombination.AddComponent: 输入的参数处理器类型实例已经包含在处理中" },
+            { 4, "ProcessCombination.AddComponent: 输入的条件类型实例已经包含在处理中" },
+            { 5, "ProcessCombination.AddComponent: 输入的目标搜索器类型实例已经包含在处理中" },
+            { 6, "ProcessCombination.AddComponent: 输入的效果类型实例已经包含在处理中" },
+            { 7, "ProcessCombination.RemoveComponent: 输入的组件类型是触发器，但不是该实例当前触发器类型实例" },
+            { 8, "ProcessCombination.RemoveComponent: 输入的组件类型是自由参数，但不是该实例当前持有的参数类型实例" },
+            { 9, "ProcessCombination.RemoveComponent: 输入的组件类型是参数处理器，但不是该实例当前持有的处理器类型实例" },
+            { 10, "ProcessCombination.RemoveComponent: 输入的组件类型是条件，但不是该实例当前持有的条件类型实例" },
+            { 11, "ProcessCombination.RemoveComponent: 输入的组件类型是目标搜索器，但不是该实例当前持有的搜索器类型实例" },
+            { 12, "ProcessCombination.RemoveComponent: 输入的组件类型是效果，但不是该实例当前持有的效果类型实例" },
+            { 13, "ProcessCombination.RemoveComponent: 输入的组件类型是活动，但不是该实例当前持有的活动类型实例" },
+            { 14, "ProcessCombination.AddComponent: 输入的参数转目标类型实例已经包含在处理中" },
+            { 15, "ProcessCombination.AddComponent: 输入的目标转参数类型实例已经包含在处理中" },
+            { 16, "ProcessCombination.RemoveComponent: 输入的组件类型是参数转目标类型，但不是该实例当前持有的参数转目标类型实例" },
+            { 17, "ProcessCombination.RemoveComponent: 输入的组件类型是目标转参数类型，但不是该实例当前持有的目标转参数类型实例" },
 
             // ProcessCombination.AddReference
             { 5001, "ProcessCombination.AddReference: 输入的影响目标组件无效" },
@@ -239,7 +244,7 @@ namespace CES
             { 1006, "ProcessCombination.CheckParamProcessor: 该参数处理器的引用资源不是合理的参数提供器" },
             { 1007, "ProcessCombination.CheckParamProcessor: 该参数处理器的引用资源为触发器，但提供的索引越界" },
             { 1008, "ProcessCombination.CheckParamProcessor: 引用资源提供的触发器中的参数索引对应的参数类型不匹配" },
-            { 1009, "ProcessCombination.CheckParamProcessor: 引用资提供的自由参数的类型不匹配" },
+            { 1009, "ProcessCombination.CheckParamProcessor: 引用资源提供的自由参数的类型不匹配" },
             { 1010, "ProcessCombination.CheckParamProcessor: 引用资源提供的参数处理器的类型不匹配" },
             { 1011, "ProcessCombination.CheckParamProcessor: 引用资源提供的参数处理器为需求自身" },
             { 1012, "ProcessCombination.CheckParamProcessor: 引用资源提供的参数处理器所处位置在该处理器后" },
@@ -249,15 +254,6 @@ namespace CES
             { 1103, "ProcessCombination.CheckCondition: 该条件未定义任何引用资源" },
             { 1104, "ProcessCombination.CheckCondition: 该条件的引用资源引用组件为空" },
             { 1105, "ProcessCombination.CheckCondition: 该条件的引用资源引用组件未加入此实例" },
-            { 1106, "ProcessCombination.CheckCondition: 引用资源指示为影响目标，但提供的不是触发器或目标搜索器" },
-            { 1110, "ProcessCombination.CheckCondition: 引用资源指示为参数提供但提供的不是合法的参数提供器" },
-            { 1111, "ProcessCombination.CheckCondition: 引用资源提供的触发器参数索引越界" },
-            { 1112, "ProcessCombination.CheckCondition: 引用资源提供的需求类型索引越界" },
-            { 1113, "ProcessCombination.CheckCondition: 引用资源提供的触发器参数类型与需求的参数类型不匹配" },
-            { 1121, "ProcessCombination.CheckCondition: 引用资源提供的需求类型索引越界" },
-            { 1122, "ProcessCombination.CheckCondition: 引用资源提供的自由参数类型与需求的参数类型不匹配" },
-            { 1131, "ProcessCombination.CheckCondition: 引用资源提供的需求类型索引越界" },
-            { 1132, "ProcessCombination.CheckCondition: 引用资源提供的自由参数类型与需求的参数类型不匹配" },
             { 1200, "ProcessCombination.CheckCondition: 该条件的引用资源不是合法的条件的参数提供器" },
             { 1301, "ProcessCombination.CheckCondition: 引用资源提供的条件的影响触发器对象提供的参数索引越界" },
             { 1302, "ProcessCombination.CheckCondition: 引用资源提供的条件的需求参数索引越界" },
@@ -265,7 +261,7 @@ namespace CES
             { 1311, "ProcessCombination.CheckCondition: 引用资源提供的条件的需求参数索引越界" },
             { 1312, "ProcessCombination.CheckCondition: 条件的该需求参数未提供索引" },
             { 1313, "ProcessCombination.CheckCondition: 条件的该需求参数索引越界" },
-            { 1323, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标搜索器，但是该目标搜索器不是当前实例的目标搜索器" },
+            { 1323, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标搜索器，但是该目标搜索器不是当前正在处理的实例的目标搜索器" },
             { 1324, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标处理器，但是该索引对应的条件的需求参数类型与目标处理器的提供的目标类型不匹配" },
             { 1325, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标处理器，但是该条件的参数需求索引中没有指向该目标处理器提供的目标类型的索引" },
             { 1331, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向触发器，但是该触发器不是当前实例的触发器" },
@@ -275,6 +271,8 @@ namespace CES
             { 1342, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向自由参数，但是该索引对应的条件的需求参数类型与自由参数提供的参数类型不匹配" },
             { 1351, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向参数处理器，但是该参数处理器不是当前实例的参数处理器" },
             { 1352, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向参数处理器，但是该索引对应的条件的需求参数类型与参数处理器提供的参数类型不匹配" },
+            { 1361, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标转参数器，但是该目标转参数器不是当前实例的目标转参数器" },
+            { 1362, "ProcessCombination.CheckCondition: 条件的该需求参数索引指向目标转参数器，但是该索引对应的条件的需求参数类型与目标转参数器提供的参数类型不匹配" },
 
             // ProcessCombination.CheckEffect
             { 2005, "ProcessCombination.CheckEffect: 该效果未定义任何引用资源" },
@@ -293,13 +291,38 @@ namespace CES
             { 2342, "ProcessCombination.CheckEffect: 效果的该需求参数索引指向自由参数，但是该索引对应的效果的需求参数类型与自由参数提供的参数类型不匹配" },
             { 2351, "ProcessCombination.CheckEffect: 效果的该需求参数索引指向参数处理器，但是该参数处理器不是当前实例的参数处理器" },
             { 2352, "ProcessCombination.CheckEffect: 效果的该需求参数索引指向参数处理器，但是该索引对应的效果的需求参数类型与参数处理器提供的参数类型不匹配" },
+            { 2361, "ProcessCombination.CheckEffect: 效果的该需求参数索引指向目标提供器，但是该目标提供器不是当前实例的目标提供器" },
+            { 2362, "ProcessCombination.CheckEffect: 效果的该需求参数索引指向目标提供器，但是该索引对应的效果的需求参数类型与目标提供器提供的参数类型不匹配" },
             { 2422, "ProcessCombination.CheckEffect: 效果的该需求目标类型未提供索引" },
             { 2423, "ProcessCombination.CheckEffect: 效果的该需求目标类型索引越界" },
             { 2441, "ProcessCombination.CheckEffect: 效果的该需求目标类型索引指向目标搜索器，但是该目标搜索器不是当前实例的目标搜索器" },
             { 2442, "ProcessCombination.CheckEffect: 效果的该需求目标类型索引指向目标搜索器，但是该索引对应的效果的需求参数类型与目标搜索器提供的目标类型不匹配" },
+            { 2451, "ProcessCombination.CheckEffect: 效果的该需求目标类型索引指向参数转目标器，但是该参数转目标器不是当前实例的参数转目标器" },
+            { 2452, "ProcessCombination.CheckEffect: 效果的该需求目标类型索引指向参数转目标器，但是该索引对应的效果的需求参数类型与参数转目标器提供的目标类型不匹配" },
+
+            // ProcessCombination.CheckParamTargetsConvertor
+            { 3003, "ProcessCombination.CheckParamTargetsConvertor: 该参数转目标器未定义任何引用资源" },
+            { 3004, "ProcessCombination.CheckParamTargetsConvertor: 该参数转目标器的引用资源引用组件为空" },
+            { 3005, "ProcessCombination.CheckParamTargetsConvertor: 该参数转目标器的引用资源引用组件未加入此实例" },
+            { 3006, "ProcessCombination.CheckParamTargetsConvertor: 该参数转目标器的引用资源不是合理的参数提供器" },
+            { 3007, "ProcessCombination.CheckParamTargetsConvertor: 该参数处理器的引用资源为触发器，但提供的索引越界" },
+            { 3008, "ProcessCombination.CheckParamTargetsConvertor: 引用资源提供的触发器中的参数索引对应的参数类型不匹配" },
+            { 3009, "ProcessCombination.CheckParamTargetsConvertor: 引用资源提供的自由参数的类型不匹配" },
+            { 3010, "ProcessCombination.CheckParamTargetsConvertor: 引用资源提供的参数处理器的类型不匹配" },
 
             // 通用
             { 9003, "ProcessCombination: 引用资源中存在相同指向的资源" },
+            { 1106, "ProcessCombination: 引用资源指示为影响目标，但提供的不是触发器或目标搜索器" },
+            { 1110, "ProcessCombination: 引用资源指示为参数提供但提供的不是合法的参数提供器" },
+            { 1111, "ProcessCombination: 引用资源提供的触发器参数索引越界" },
+            { 1112, "ProcessCombination: 引用资源提供的需求类型索引越界" },
+            { 1113, "ProcessCombination: 引用资源提供的触发器参数类型与需求的参数类型不匹配" },
+            { 1121, "ProcessCombination: 引用资源提供的需求类型索引越界" },
+            { 1122, "ProcessCombination: 引用资源提供的自由参数类型与需求的参数类型不匹配" },
+            { 1131, "ProcessCombination: 引用资源提供的需求类型索引越界" },
+            { 1132, "ProcessCombination: 引用资源提供的自由参数类型与需求的参数类型不匹配" },
+            { 1141, "ProcessCombination: 引用资源提供的需求类型索引越界" },
+            { 1142, "ProcessCombination: 引用资源提供的自由参数类型与需求的参数类型不匹配" },
         };
     }
     /// <summary>
@@ -325,6 +348,11 @@ namespace CES
         /// </summary>
         internal List<ICESTargetSearch> TargetSearches { get; } = [];
         /// <summary>
+        /// 当前组合的参数转目标组件列表
+        /// </summary>
+        internal List<ICESParamTargetConvertor> ParamTargetConvertors { get; } = [];
+
+        /// <summary>
         /// 当前组合的条件组件列表
         /// </summary>
         internal List<ICESCondition> Conditions { get; } = [];
@@ -339,7 +367,7 @@ namespace CES
         /// <summary>
         /// 当前组合的所有组件引用关系
         /// </summary>
-        private List<ComponentReference> ComponentReferences { get; } = [];
+        internal List<ComponentReference> ComponentReferences { get; } = [];
         /// <summary>
         /// 当前组合的所有错误引用组件
         /// </summary>
@@ -384,6 +412,10 @@ namespace CES
                     {
                         return TargetSearches.Contains((ICESTargetSearch)component);
                     }
+                case ICESParamTargetConvertor:
+                    {
+                        return ParamTargetConvertors.Contains((ICESParamTargetConvertor)component);
+                    }
                 case ICESEffect:
                     {
                         return Effects.Contains((ICESEffect)component);
@@ -424,6 +456,7 @@ namespace CES
             list.AddRange(ParamProcessors);
             list.AddRange(Conditions);
             list.AddRange(TargetSearches);
+            list.AddRange(ParamTargetConvertors);
             list.AddRange(Effects);
             list.Add(Activity);
             return list.FirstOrDefault(x => x.SelfIndex == index);
@@ -447,9 +480,8 @@ namespace CES
                         Trigger = (ICESTrigger)component;
                         break;
                     }
-                case ICESFreeParam:
+                case ICESFreeParam freeParam:
                     {
-                        var freeParam = (ICESFreeParam)component;
                         if (!FreeParams.TryAdd(freeParam))
                         {
                             //输入的自由参数类型已经存在
@@ -457,9 +489,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESParamProcessor:
+                case ICESParamProcessor paramProcessor:
                     {
-                        var paramProcessor = (ICESParamProcessor)component;
                         if (!ParamProcessors.TryAdd(paramProcessor))
                         {
                             //输入的参数处理器类型已经存在
@@ -467,9 +498,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESCondition:
+                case ICESCondition condition:
                     {
-                        var condition = (ICESCondition)component;
                         if (!Conditions.TryAdd(condition))
                         {
                             //输入的条件类型已经存在
@@ -477,9 +507,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESTargetSearch:
+                case ICESTargetSearch targetSearch:
                     {
-                        var targetSearch = (ICESTargetSearch)component;
                         if (!TargetSearches.TryAdd(targetSearch))
                         {
                             //输入的目标搜索器类型已经存在
@@ -487,9 +516,17 @@ namespace CES
                         }
                         break;
                     }
-                case ICESEffect:
+                case ICESParamTargetConvertor paramTargetConvertor:
                     {
-                        var effect = (ICESEffect)component;
+                        if (!ParamTargetConvertors.TryAdd(paramTargetConvertor))
+                        {
+                            //输入的参数转目标类型已经存在
+                            return 14;
+                        }
+                        break;
+                    }
+                case ICESEffect effect:
+                    {
                         if (!Effects.TryAdd(effect))
                         {
                             //输入的效果类型已经存在
@@ -534,9 +571,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESFreeParam:
+                case ICESFreeParam freeParam:
                     {
-                        var freeParam = (ICESFreeParam)component;
                         if (!FreeParams.Remove(freeParam))
                         {
                             //输入的组件类型是自由参数，但不是该实例当前持有的参数
@@ -544,9 +580,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESParamProcessor:
+                case ICESParamProcessor paramProcessor:
                     {
-                        var paramProcessor = (ICESParamProcessor)component;
                         if (!ParamProcessors.Remove(paramProcessor))
                         {
                             //输入的组件类型是参数处理器，但不是该实例当前持有的处理器
@@ -554,9 +589,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESCondition:
+                case ICESCondition condition:
                     {
-                        var condition = (ICESCondition)component;
                         if (!Conditions.Remove(condition))
                         {
                             //输入的组件类型是条件，但不是该实例当前持有的条件
@@ -564,9 +598,8 @@ namespace CES
                         }
                         break;
                     }
-                case ICESTargetSearch:
+                case ICESTargetSearch targetSearch:
                     {
-                        var targetSearch = (ICESTargetSearch)component;
                         if (!TargetSearches.Remove(targetSearch))
                         {
                             //输入的组件类型是目标搜索器，但不是该实例当前持有的搜索器
@@ -574,9 +607,17 @@ namespace CES
                         }
                         break;
                     }
-                case ICESEffect:
+                case ICESParamTargetConvertor paramTargetConvertor:
                     {
-                        var effect = (ICESEffect)component;
+                        if (!ParamTargetConvertors.Remove(paramTargetConvertor))
+                        {
+                            //输入的组件类型是参数转目标类型，但不是该实例当前持有的参数转目标类型实例
+                            return 16;
+                        }
+                        break;
+                    }
+                case ICESEffect effect:
+                    {
                         if (!Effects.Remove(effect))
                         {
                             //输入的组件类型是效果，但不是该实例当前持有的效果
@@ -637,6 +678,12 @@ namespace CES
                 TargetSearches[i].SelfIndex = count;
                 count++;
             }
+            ParamTargetConvertors.RemoveAll(x => x == null);
+            for (int i = 0; i < ParamTargetConvertors.Count; i++)
+            {
+                ParamTargetConvertors[i].SelfIndex = count;
+                count++;
+            }
             Conditions.RemoveAll(x => x == null);
             for (int i = 0; i < Conditions.Count; i++)
             {
@@ -671,13 +718,13 @@ namespace CES
         /// </summary>
         /// <param name="sourceComponent">源组件</param>
         /// <param name="refereceComponent">被引用组件</param>
-        /// <param name="IsParam">是否为参数引用</param>
-        /// <param name="IsTarget">是否为目标引用</param>
-        /// <param name="IsAffectTarget">是否为影响目标引用</param>
-        /// <param name="TriggerParamIndex">触发器参数索引</param>
-        /// <param name="MultipleRequireIndex">多参数需求索引</param>
+        /// <param name="IsAsParam">是否为参数引用</param>
+        /// <param name="IsAsTarget">是否为目标引用</param>
+        /// <param name="IsAsAffectTarget">是否为影响目标引用</param>
+        /// <param name="useTriggerParamIndex">触发器参数索引</param>
+        /// <param name="useMultipleRequireIndex">多参数需求索引</param>
         /// <returns>错误码，0为合法</returns>
-        public int CheckReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsParam, bool IsTarget, bool IsAffectTarget, int TriggerParamIndex = -1, int MultipleRequireIndex = -1)
+        public int CheckReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsAsParam, bool IsAsTarget, bool IsAsAffectTarget, int useMultipleRequireIndex, int useTriggerParamIndex)
         {
             if (InvalidCheck(sourceComponent))
             {
@@ -699,37 +746,39 @@ namespace CES
                 //引用资源未加入此实例
                 return 5004;
             }
-            if (sourceComponent is not ICESParamProcessor && sourceComponent is not ICESCondition && sourceComponent is not ICESEffect)
+            if (sourceComponent is not ICESParamProcessor && sourceComponent is not ICESCondition && sourceComponent is not ICESEffect
+                && sourceComponent is not ICESParamTargetConvertor)
             {
                 //输入的影响目标组件不是参数处理器、条件或效果
                 return 5005;
             }
-            if (IsParam == true)
+            if (IsAsParam == true)
             {
-                if (IsTarget == true)
+                if (IsAsTarget == true)
                 {
                     //IsParam和IsTarget不能同时为true
                     return 5006;
                 }
                 if (refereceComponent is ICESTrigger tr)
                 {
-                    if (TriggerParamIndex < 0 || TriggerParamIndex > tr.ProvideParamTypes.Count)
+                    if (useTriggerParamIndex < 0 || useTriggerParamIndex > tr.ProvideParamTypes.Count)
                     {
                         //引用资源提供的是触发器，但给出的触发器参数索引越界
                         return 5007;
                     }
                 }
             }
-            if (IsAffectTarget && refereceComponent is not ICESTrigger && refereceComponent is not ICESTargetSearch)
+            if (IsAsAffectTarget && refereceComponent is not ICESTrigger && refereceComponent is not ICESTargetSearch)
             {
+                //引用资源指示为影响目标，但提供的不是触发器或目标搜索器
                 return 5008;
             }
-            if ((IsParam || IsTarget) && (sourceComponent is ICESCondition || sourceComponent is ICESEffect) && MultipleRequireIndex < 0)
+            if ((IsAsParam || IsAsTarget) && (sourceComponent is ICESCondition || sourceComponent is ICESEffect) && useMultipleRequireIndex < 0)
             {
                 //影响目标组件存在多个参数或目标需求，引用资源需要提供参数的目标需求索引
                 return 5009;
             }
-            if (!IsParam && !IsTarget && !IsAffectTarget)
+            if (!IsAsParam && !IsAsTarget && !IsAsAffectTarget)
             {
                 //无意义的引用资源
                 return 5011;
@@ -750,36 +799,36 @@ namespace CES
         /// </summary>
         /// <param name="sourceComponent">源组件</param>
         /// <param name="refereceComponent">被引用组件</param>
-        /// <param name="IsParam">是否为参数引用</param>
-        /// <param name="IsTarget">是否为目标引用</param>
-        /// <param name="IsAffectTarget">是否为影响目标引用</param>
-        /// <param name="TriggerParamIndex">触发器参数索引</param>
-        /// <param name="MultipleRequireIndex">多参数需求索引</param>
+        /// <param name="IsAsParam">是否为参数引用</param>
+        /// <param name="IsAsTarget">是否为目标引用</param>
+        /// <param name="IsAsAffectTarget">是否为影响目标引用</param>
+        /// <param name="useTriggerParamIndex">触发器参数索引</param>
+        /// <param name="useMultipleRequireIndex">多参数需求索引</param>
         /// <returns>错误码，0为成功</returns>
-        public int AddReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsParam, bool IsTarget, bool IsAffectTarget, int TriggerParamIndex = -1, int MultipleRequireIndex = -1)
+        public int AddReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsAsParam, bool IsAsTarget, bool IsAsAffectTarget, int useMultipleRequireIndex, int useTriggerParamIndex)
         {
-            var result = CheckReference(sourceComponent, refereceComponent, IsParam, IsTarget, IsAffectTarget, TriggerParamIndex, MultipleRequireIndex);
+            var result = CheckReference(sourceComponent, refereceComponent, IsAsParam, IsAsTarget, IsAsAffectTarget, useTriggerParamIndex, useMultipleRequireIndex);
             if (result != 0)
             {
                 return result;
             }
-            if (TriggerParamIndex < 0)
+            if (useTriggerParamIndex < 0)
             {
-                TriggerParamIndex = 0;
+                useTriggerParamIndex = 0;
             }
-            if (MultipleRequireIndex < 0)
+            if (useMultipleRequireIndex < 0)
             {
-                MultipleRequireIndex = 0;
+                useMultipleRequireIndex = 0;
             }
             var reference = new ComponentReference()
             {
                 SourceComponent = sourceComponent,
                 ReferenceComponent = refereceComponent,
-                IsParam = IsParam,
-                IsTarget = IsTarget,
-                IsAffectTarget = IsAffectTarget,
-                TriggerParamIndex = TriggerParamIndex,
-                MultipleRequireIndex = MultipleRequireIndex
+                IsParam = IsAsParam,
+                IsTarget = IsAsTarget,
+                IsAffectTarget = IsAsAffectTarget,
+                TriggerParamIndex = useTriggerParamIndex,
+                MultipleRequireIndex = useMultipleRequireIndex
             };
             var last = ComponentReferences.FirstOrDefault(x => x.SourceComponent == sourceComponent);
             if (last == null)
@@ -842,7 +891,7 @@ namespace CES
         /// <param name="MultipleRequireIndex">多参数需求索引</param>
         /// <param name="TriggerParamIndex">触发器参数索引</param>
         /// <returns>错误码，0为成功</returns>
-        public int RemoveReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsParam, bool IsTarget, bool IsAffectTarget, int MultipleRequireIndex = -1, int TriggerParamIndex = 0)
+        public int RemoveReference(ICESComponent sourceComponent, ICESComponent refereceComponent, bool IsParam, bool IsTarget, bool IsAffectTarget, int MultipleRequireIndex, int TriggerParamIndex)
         {
             var result = CheckReference(sourceComponent, refereceComponent, IsParam, IsTarget, IsAffectTarget, TriggerParamIndex, MultipleRequireIndex);
             if (result != 0)
@@ -888,10 +937,10 @@ namespace CES
             return 0;
         }
         /// <summary>
-        /// 检查参数处理器的引用关系是否合法
+        /// 检查参数处理器的引用关系是否合法，并记录所有错误引用到ErrorComponents。
         /// </summary>
-        /// <param name="paramProcessor">参数处理器</param>
-        public void CheckParamProcessor(ICESParamProcessor paramProcessor)
+        /// <param name="paramProcessor">待检查的参数处理器</param>
+        private void CheckParamProcessor(ICESParamProcessor paramProcessor)
         {
             if (ComponentReferences.FirstOrDefault(x => x.SourceComponent == paramProcessor) is ComponentReference reference)
             {
@@ -1031,11 +1080,115 @@ namespace CES
                 return;
             }
         }
+        
+        private void CheckParamTargetsConvertor(ICESParamTargetConvertor paramTargetConvertor)
+        {
+            if (ComponentReferences.FirstOrDefault(x => x.SourceComponent == paramTargetConvertor) is ComponentReference reference)
+            {
+                var sameTL = reference.GetAllSameTarget();
+                if (sameTL.Count > 0)
+                {
+                    foreach (var st in sameTL)
+                    {
+                        //引用资源中存在相同指向的资源
+                        st.ErrorCode = 9003;
+                        ErrorComponents.Add(st);
+                    }
+                    return;
+                }
+                if (reference.ReferenceComponent == null)
+                {
+                    //该参数转目标器的引用资源引用组件为空
+                    reference.ErrorCode = 3004;
+                    ErrorComponents.Add(reference);
+                    return;
+                }
+                if (!Contains(reference.ReferenceComponent))
+                {
+                    //该参数转目标器的引用资源引用组件未加入此实例
+                    reference.ErrorCode = 3005;
+                    ErrorComponents.Add(reference);
+                    return;
+                }
+                switch (reference.ReferenceComponent)
+                {
+                    case ICESTrigger tri:
+                        {
+                            if (tri.ProvideParamTypes.ElementAtOrDefault(reference.TriggerParamIndex) is Type type)
+                            {
+                                if (paramTargetConvertor.RequireParamType.IsInheritedBy(type))
+                                {
+                                    paramTargetConvertor.RequireParamIndex = reference.TriggerParamIndex;
+                                    return;
+                                }
+                                else
+                                {
+                                    //引用资源提供的触发器中的参数索引对应的参数类型不匹配
+                                    reference.ErrorCode = 3008;
+                                    ErrorComponents.Add(reference);
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                //该参数转目标器的引用资源为触发器，但提供的索引越界
+                                reference.ErrorCode = 3007;
+                                ErrorComponents.Add(reference);
+                                return;
+                            }
+                        }
+                    case ICESFreeParam freeParam:
+                        {
+                            if (paramTargetConvertor.RequireParamType.IsInheritedBy(freeParam.ProvideParamType))
+                            {
+                                paramTargetConvertor.RequireParamIndex = freeParam.SelfIndex;
+                                return;
+                            }
+                            else
+                            {
+                                //引用资源提供的参数处理器提供的类型不匹配
+                                reference.ErrorCode = 3009;
+                                ErrorComponents.Add(reference);
+                                return;
+                            }
+                        }
+                    case ICESParamProcessor pp:
+                        {
+                            if (paramTargetConvertor.RequireParamType.IsInheritedBy(pp.ProvideParamType))
+                            {
+                                paramTargetConvertor.RequireParamIndex = pp.SelfIndex;
+                                return;
+                            }
+                            else
+                            {
+                                //引用资提供的参数处理器提供的类型不匹配
+                                reference.ErrorCode = 3010;
+                                ErrorComponents.Add(reference);
+                                return;
+                            }
+                        }
+                    default:
+                        {
+                            //该参数转目标器的引用资源不是合理的参数提供器
+                            reference.ErrorCode = 3006;
+                            ErrorComponents.Add(reference);
+                            return;
+                        }
+                }
+            }
+            else
+            {
+                //该参数转目标器未定义任何引用资源
+                ErrorComponents.Add(new ComponentReference() { SourceComponent = paramTargetConvertor, ErrorCode = 3003 });
+                return;
+            }
+        }
+
         /// <summary>
         /// 检查条件组件的引用关系是否合法，并记录所有错误引用到ErrorComponents。
         /// </summary>
         /// <param name="condition">待检查的条件组件</param>
-        public void CheckCondition(ICESCondition condition)
+        private void CheckCondition(ICESCondition condition)
         {
             if (ComponentReferences.FirstOrDefault(x => x.SourceComponent == condition) is ComponentReference reference)
             {
@@ -1333,7 +1486,7 @@ namespace CES
         /// 检查效果组件的引用关系是否合法，并记录所有错误引用到ErrorComponents。
         /// </summary>
         /// <param name="effect">待检查的效果组件</param>
-        public void CheckEffect(ICESEffect effect)
+        private void CheckEffect(ICESEffect effect)
         {
             if (effect == null)
             {
@@ -1454,16 +1607,6 @@ namespace CES
                     {
                         if (@ref.ReferenceComponent is ICESTargetSearch targetSearch)
                         {
-                            //var list = new List<ICESTargetSearch>(TargetSearches);
-                            //list.Sort();
-                            //var index = @ref.ReferenceComponent.SelfIndex;
-                            //if (index < 0)
-                            //{
-                            //    //引用资源提供的目标搜索器不是当前实例的目标搜索器
-                            //    @ref.ErrorCode = 2021;
-                            //    ErrorComponents.Add(@ref);
-                            //    continue;
-                            //}
                             var type = effect.RequireTargetTypes.ElementAtOrDefault(@ref.MultipleRequireIndex);
                             if (type == null)
                             {
@@ -1480,6 +1623,26 @@ namespace CES
                                 continue;
                             }
                             effect.RequireTargetIndexes.InsertOrUpdateAt(@ref.MultipleRequireIndex, targetSearch.SelfIndex);
+                            continue;
+                        }
+                        else if (@ref.ReferenceComponent is ICESParamTargetConvertor paramTargetConvertor)
+                        {
+                            var type = effect.RequireTargetTypes.ElementAtOrDefault(@ref.MultipleRequireIndex);
+                            if (type == null)
+                            {
+                                //引用资源提供的需求目标类型索引越界
+                                @ref.ErrorCode = 2022;
+                                ErrorComponents.Add(@ref);
+                                continue;
+                            }
+                            if (!type.IsInheritedBy(paramTargetConvertor.ProvideTargetType))
+                            {
+                                //引用资源提供的目标搜索器的目标类型与需求的目标类型不匹配
+                                @ref.ErrorCode = 2023;
+                                ErrorComponents.Add(@ref);
+                                continue;
+                            }
+                            effect.RequireTargetIndexes.InsertOrUpdateAt(@ref.MultipleRequireIndex, paramTargetConvertor.SelfIndex);
                             continue;
                         }
                         else
@@ -1578,15 +1741,6 @@ namespace CES
                     }
                     var targetIndex = effect.RequireTargetIndexes[j];
                     var targetC = SearchIndexComponent(targetIndex);
-                    //var list = new List<ICESTargetSearch>(TargetSearches);
-                    //list.Sort();
-                    //var targetC = list.ElementAtOrDefault(targetIndex);
-                    //if (targetC == null)
-                    //{
-                    //    //效果的该需求目标类型索引越界
-                    //    ErrorComponents.Add(new ComponentReference() { SourceComponent = effect, ErrorCode = 2423 });
-                    //    continue;
-                    //}
                     var type = effect.RequireTargetTypes[j];
                     if (targetC is ICESTargetSearch ts)
                     {
@@ -1601,6 +1755,22 @@ namespace CES
                             //效果的该需求目标类型索引指向目标搜索器，但是该索引对应的效果的需求参数类型与目标搜索器提供的目标类型不匹配
                             ErrorComponents.Add(new ComponentReference()
                             { SourceComponent = effect, ReferenceComponent = ts, IsTarget = true, ErrorCode = 2442 });
+                        }
+                        continue;
+                    }
+                    else if (targetC is ICESParamTargetConvertor paramTargetConvertor)
+                    {
+                        if (!ParamTargetConvertors.Contains(paramTargetConvertor))
+                        {
+                            //效果的该需求目标类型索引指向参数转目标器，但是该参数转目标器不是当前实例的参数转目标器
+                            ErrorComponents.Add(new ComponentReference()
+                            { SourceComponent = effect, ReferenceComponent = paramTargetConvertor, IsTarget = true, ErrorCode = 2451 });
+                        }
+                        if (!type.IsInheritedBy(paramTargetConvertor.ProvideTargetType))
+                        {
+                            //效果的该需求目标类型索引指向参数转目标器，但是该索引对应的效果的需求参数类型与参数转目标器提供的目标类型不匹配
+                            ErrorComponents.Add(new ComponentReference()
+                            { SourceComponent = effect, ReferenceComponent = paramTargetConvertor, IsTarget = true, ErrorCode = 2452 });
                         }
                         continue;
                     }
@@ -1639,6 +1809,10 @@ namespace CES
             {
                 CheckParamProcessor(ParamProcessors[i]);
             }
+            for (int i = 0; i < ParamTargetConvertors.Count; i++)
+            {
+                CheckParamTargetsConvertor(ParamTargetConvertors[i]);
+            }
             for (int i = 0; i < Conditions.Count; i++)
             {
                 CheckCondition(Conditions[i]);
@@ -1657,11 +1831,10 @@ namespace CES
         /// <summary>
         /// 获取组合结果对象及校验码，若无错误则返回完整的SingleEffect对象。
         /// </summary>
-        /// <typeparam name="T">SingleEffect的派生类型</typeparam>
         /// <returns>元组：(结果对象, 校验码)</returns>
-        public (T, int) GetResult<T>() where T : SingleEffect, new()
+        public (SingleEffect, int) GetResult()
         {
-            var result = new T();
+            var result = new SingleEffect();
             var i = CheckResult();
             if (i == 0)
             {
@@ -1680,6 +1853,8 @@ namespace CES
                 Conditions.ForEach(x => x.Owner = result);
                 result.TargetSearches.AddRange([.. TargetSearches]);
                 TargetSearches.ForEach(x => x.Owner = result);
+                result.ParamTargetConvertors.AddRange([.. ParamTargetConvertors]);
+                ParamTargetConvertors.ForEach(x => x.Owner = result);
                 result.Effects.AddRange([.. Effects]);
                 Effects.ForEach(x => x.Owner = result);
                 result.Activity = Activity;

@@ -46,6 +46,7 @@
     <Compile Include="Combine.cs" />
     <Compile Include="ComponentInterfaces.cs" />
     <Compile Include="Components.cs" />
+    <Compile Include="Convertor.cs" />
     <Compile Include="Description.cs" />
     <Compile Include="LogTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
