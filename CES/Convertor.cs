@@ -115,7 +115,8 @@ namespace CES
             {
                 ComponentType = GetTypeName(trigger),
                 InstanceType = trigger.GetType().FullName,
-                SelfIndex = trigger.SelfIndex
+                SelfIndex = trigger.SelfIndex,
+                UsingNumbers = [.. trigger.UsingNumber],
             };
             return result;
         }
@@ -132,6 +133,8 @@ namespace CES
             if (type == null || Activator.CreateInstance(type) is not ICESTrigger result)
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
 
@@ -148,7 +151,8 @@ namespace CES
             {
                 ComponentType = GetTypeName(freeParam),
                 InstanceType = freeParam.GetType().FullName,
-                SelfIndex = freeParam.SelfIndex
+                SelfIndex = freeParam.SelfIndex,
+                UsingNumbers = [.. freeParam.UsingNumber],
             };
             return result;
         }
@@ -165,6 +169,8 @@ namespace CES
             if (type == null || Activator.CreateInstance(type) is not ICESFreeParam result)
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -181,7 +187,8 @@ namespace CES
                 ComponentType = GetTypeName(paramProcessor),
                 InstanceType = paramProcessor.GetType().FullName,
                 SelfIndex = paramProcessor.SelfIndex,
-                RequireParamsIndexes = [paramProcessor.RequireParamIndex]
+                RequireParamsIndexes = [paramProcessor.RequireParamIndex],
+                UsingNumbers = [.. paramProcessor.UsingNumber],
             };
             return result;
         }
@@ -199,6 +206,8 @@ namespace CES
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
             result.RequireParamIndex = serializableComponent.RequireParamsIndexes?.ElementAtOrDefault(0) ?? 0;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -214,7 +223,8 @@ namespace CES
             {
                 ComponentType = GetTypeName(targetSearch),
                 InstanceType = targetSearch.GetType().FullName,
-                SelfIndex = targetSearch.SelfIndex
+                SelfIndex = targetSearch.SelfIndex,
+                UsingNumbers = [.. targetSearch.UsingNumber],
             };
             return result;
         }
@@ -231,6 +241,8 @@ namespace CES
             if (type == null || Activator.CreateInstance(type) is not ICESTargetSearch result)
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -247,7 +259,8 @@ namespace CES
                 ComponentType = GetTypeName(paramTargetConvertor),
                 InstanceType = paramTargetConvertor.GetType().FullName,
                 SelfIndex = paramTargetConvertor.SelfIndex,
-                RequireParamsIndexes = [paramTargetConvertor.RequireParamIndex]
+                RequireParamsIndexes = [paramTargetConvertor.RequireParamIndex],
+                UsingNumbers = [.. paramTargetConvertor.UsingNumber]
             };
             return result;
         }
@@ -265,6 +278,8 @@ namespace CES
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
             result.RequireParamIndex = serializableComponent.RequireParamsIndexes?.ElementAtOrDefault(0) ?? 0;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -281,7 +296,8 @@ namespace CES
                 ComponentType = GetTypeName(condition),
                 InstanceType = condition.GetType().FullName,
                 SelfIndex = condition.SelfIndex,
-                RequireParamsIndexes = [.. condition.RequireParamIndexes]
+                RequireParamsIndexes = [.. condition.RequireParamIndexes],
+                UsingNumbers = [.. condition.UsingNumber]
             };
             return result;
         }
@@ -300,6 +316,8 @@ namespace CES
             result.SelfIndex = serializableComponent.SelfIndex;
             result.RequireParamIndexes.Clear();
             result.RequireParamIndexes.AddRange(serializableComponent.RequireParamsIndexes ?? []);
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -317,7 +335,8 @@ namespace CES
                 InstanceType = effect.GetType().FullName,
                 SelfIndex = effect.SelfIndex,
                 RequireParamsIndexes = [.. effect.RequireParamIndexes],
-                RequireTargetsIndexes = [.. effect.RequireTargetIndexes]
+                RequireTargetsIndexes = [.. effect.RequireTargetIndexes],
+                UsingNumbers = [.. effect.UsingNumber]
             };
             return result;
         }
@@ -338,6 +357,8 @@ namespace CES
             result.RequireParamIndexes.AddRange(serializableComponent.RequireParamsIndexes ?? []);
             result.RequireTargetIndexes.Clear();
             result.RequireTargetIndexes.AddRange(serializableComponent.RequireTargetsIndexes ?? []);
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
         /// <summary>
@@ -354,6 +375,7 @@ namespace CES
                 ComponentType = GetTypeName(activity),
                 InstanceType = activity.GetType().FullName,
                 SelfIndex = activity.SelfIndex,
+                UsingNumbers = [.. activity.UsingNumber],
             };
             return result;
         }
@@ -370,6 +392,8 @@ namespace CES
             if (type == null || Activator.CreateInstance(type) is not ICESActivity result)
                 return null;
             result.SelfIndex = serializableComponent.SelfIndex;
+            result.UsingNumber.Clear();
+            result.UsingNumber.AddRange(serializableComponent.UsingNumbers ?? []);
             return result;
         }
 
@@ -467,13 +491,17 @@ namespace CES
         /// </summary>
         public int SelfIndex { get; set; }
         /// <summary>
+        /// 组件的使用数字列表
+        /// </summary>
+        public List<float> UsingNumbers { get; set; } = [];
+        /// <summary>
         /// 组件的需求参数的引用组件索引
         /// </summary>
-        public List<int> RequireParamsIndexes { get; set; }
+        public List<int> RequireParamsIndexes { get; set; } = [];
         /// <summary>
         /// 组件的需求目标的引用组件索引
         /// </summary>
-        public List<int> RequireTargetsIndexes { get; set; }
+        public List<int> RequireTargetsIndexes { get; set; } = [];
     }
     /// <summary>
     /// 可序列化的单个效果
