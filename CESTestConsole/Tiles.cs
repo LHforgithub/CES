@@ -222,6 +222,26 @@ namespace CESTestConsole
             return filterTarget;
         }
     }
+
+    public class TestCondition_0 : ConditionBase
+    {
+        public override IDescribeProcessor DescribeProcessor => throw new NotImplementedException();
+        public override string ChangeDescription(string originalDesc)
+        {
+            return originalDesc;
+        }
+        public override async Task<bool> Check(List<ICESParamable> param)
+        {
+            Console.WriteLine("Condition 0");
+            return true;
+        }
+        public override void Destroy()
+        {
+        }
+        public override void Init()
+        {
+        }
+    }
     public class TestCondition_1 : ConditionBase
     {
         public override IDescribeProcessor DescribeProcessor => throw new NotImplementedException();

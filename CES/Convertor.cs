@@ -19,6 +19,11 @@ namespace CES
         /// <returns></returns>
         public static CESSerializableSingleEffect Serialize(SingleEffect singleEffect)
         {
+            if (singleEffect == null)
+            {
+                LogTool.Instance.Log("CESSingleEffectConvertor.Serialize: Serialize SingleEffect failed, singleEffect is null.");
+                return default;
+            }
             var result = new CESSerializableSingleEffect
             {
                 ID = singleEffect.ID,
@@ -42,9 +47,18 @@ namespace CES
         /// <returns></returns>
         public static SingleEffect Deserialize(CESSerializableSingleEffect serializeableSingleEffect, Assembly[] assemblies = null)
         {
+            if (serializeableSingleEffect == null)
+            {
+                LogTool.Instance.Log("CESSingleEffectConvertor.Deserialize: Deserialize SingleEffect failed, serializeableSingleEffect is null.");
+                return default;
+            }
             var result = new SingleEffect();
             result.ID = serializeableSingleEffect.ID;
             result.Trigger = DeserializeComponent<ICESTrigger>(serializeableSingleEffect.Trigger, assemblies);
+            if (result.Trigger == null)
+            {
+                return default;
+            }
             result.Trigger.Owner = result;
             result.FreeParams.AddRange([.. serializeableSingleEffect.FreeParams.Select((x) => DeserializeComponent<ICESFreeParam>(x, assemblies))]);
             result.FreeParams.ForEach(x => x.Owner = result);
@@ -73,6 +87,11 @@ namespace CES
         /// <returns></returns>
         public static SerializableComponent SerializeComponent(ICESComponent component)
         {
+            if (component == null)
+            {
+                LogTool.Instance.Log("CESSingleEffectConvertor.SerializeComponent: Serialize component failed, component is null.");
+                return null;
+            }
             return component switch
             {
                 ICESTrigger trigger => SerializeTrigger(trigger),
@@ -94,6 +113,11 @@ namespace CES
         /// <returns></returns>
         public static T DeserializeComponent<T>(SerializableComponent serializableComponent, Assembly[] assemblies = null) where T : ICESComponent
         {
+            if (serializableComponent == null)
+            {
+                LogTool.Instance.Log("CESSingleEffectConvertor.DeserializeComponent: Deserialize component failed, serializableComponent is null.");
+                return default;
+            }
             return 0 switch
             {
                 _ when serializableComponent.ComponentType == GetNameByType<ICESTrigger>() => (T)DeserializeTrigger(serializableComponent, assemblies),
